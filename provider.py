@@ -80,6 +80,8 @@ def rotate_point_cloud_z(batch_data):
                                     [-sinval, cosval, 0],
                                     [0, 0, 1]])
         shape_pc = batch_data[k, ...]
+        # print("shape_pc shape:", shape_pc.shape, "type:", type(shape_pc))
+        # print("rotation_matrix shape:", rotation_matrix.shape, "type:", type(rotation_matrix))
         rotated_data[k, ...] = np.dot(shape_pc.reshape((-1, 3)), rotation_matrix)
     return rotated_data
 

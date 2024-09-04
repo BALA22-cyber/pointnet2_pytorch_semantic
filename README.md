@@ -99,6 +99,7 @@ python test_partseg.py --normal --log_dir pointnet2_part_seg_msg
 ## Semantic Segmentation (S3DIS)
 ### Data Preparation
 Download 3D indoor parsing dataset (**S3DIS**) [here](http://buildingparser.stanford.edu/dataset.html)  and save in `data/s3dis/Stanford3dDataset_v1.2_Aligned_Version/`.
+If the site doesn't work, download it by searching " index of s3dis" on google and download it from the ethz server
 ```
 cd data_utils
 python collect_indoor3d_data.py

@@ -7,10 +7,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 sys.path.append(BASE_DIR)
 
-# DATA_PATH = os.path.join(ROOT_DIR, 'data','s3dis', 'Stanford3dDataset_v1.2_Aligned_Version')
-# print("data_path", DATA_PATH)
-DATA_PATH = '/mnt/c/Users/kaise/Downloads/Pointnet_Pointnet2_pytorch/data/s3dis/Stanford3dDataset_v1.2_Aligned_Version'
-
+DATA_PATH = os.path.join(ROOT_DIR, 'data','s3dis', 'Stanford3dDataset_v1.2_Aligned_Version')
 g_classes = [x.rstrip() for x in open(os.path.join(BASE_DIR, 'meta/class_names.txt'))]
 g_class2label = {cls: i for i,cls in enumerate(g_classes)}
 g_class2color = {'ceiling':	[0,255,0],
@@ -34,105 +31,35 @@ g_label2color = {g_classes.index(cls): g_class2color[cls] for cls in g_classes}
 # CONVERT ORIGINAL DATA TO OUR DATA_LABEL FILES
 # -----------------------------------------------------------------------------
 
-#def collect_point_label(anno_path, out_filename, file_format='txt'):
-    # """ Convert original dataset files to data_label file (each line is XYZRGBL).
-    #     We aggregated all the points from each instance in the room.
-
-    # Args:
-    #     anno_path: path to annotations. e.g. Area_1/office_2/Annotations/
-    #     out_filename: path to save collected points and labels (each line is XYZRGBL)
-    #     file_format: txt or numpy, determines what file format to save.
-    # Returns:
-    #     None
-    # Note:
-    #     the points are shifted before save, the most negative point is now at origin.
-    # """
-    # points_list = []
-    # for f in glob.glob(os.path.join(anno_path, '*.txt')):
-    #     cls = os.path.basename(f).split('_')[0]
-    #     print(f)
-    #     if cls not in g_classes: # note: in some room there is 'staris' class..
-    #         cls = 'clutter'
-
-    #     points = np.loadtxt(f)
-    #     labels = np.ones((points.shape[0],1)) * g_class2label[cls]
-    #     points_list.append(np.concatenate([points, labels], 1)) # Nx7
-    
-    # data_label = np.concatenate(points_list, 0)
-    # print("")
-    # xyz_min = np.amin(data_label, axis=0)[0:3]
-    # data_label[:, 0:3] -= xyz_min
-    
-    # if file_format=='txt':
-    #     fout = open(out_filename, 'w')
-    #     for i in range(data_label.shape[0]):
-    #         fout.write('%f %f %f %d %d %d %d\n' % \
-    #                       (data_label[i,0], data_label[i,1], data_label[i,2],
-    #                        data_label[i,3], data_label[i,4], data_label[i,5],
-    #                        data_label[i,6]))
-    #     fout.close()
-    # elif file_format=='numpy':
-    #     np.save(out_filename, data_label)
-    # else:
-    #     print('ERROR!! Unknown file format: %s, please use txt or numpy.' % \
-    #         (file_format))
-    #     exit()
-
 def collect_point_label(anno_path, out_filename, file_format='txt'):
     """ Convert original dataset files to data_label file (each line is XYZRGBL).
         We aggregated all the points from each instance in the room.
-    """
-    print(f"Collecting point labels from: {anno_path}")
-    print(f"Output will be saved to: {out_filename} as {file_format}")
 
+    Args:
+        anno_path: path to annotations. e.g. Area_1/office_2/Annotations/
+        out_filename: path to save collected points and labels (each line is XYZRGBL)
+        file_format: txt or numpy, determines what file format to save.
+    Returns:
+        None
+    Note:
+        the points are shifted before save, the most negative point is now at origin.
+    """
     points_list = []
-    
-    # Debug: Print the directory path we are looking in
-    print(f"Looking for .txt files in: {anno_path}")
-    
-    # Try listing the contents of the directory
-    try:
-        print(f"Contents of the directory: {os.listdir(anno_path)}")
-    except Exception as e:
-        print(f"Error accessing directory {anno_path}: {e}")
-        return
-    
-    files = glob.glob(os.path.join(anno_path, '*.txt'))
-    
-    # Debug: Print the list of files found
-    print(f"Files found: {files}")
-    
-    for f in files:
+    for f in glob.glob(os.path.join(anno_path, '*.txt')):
         cls = os.path.basename(f).split('_')[0]
-        print(f"Processing file: {f}, class: {cls}")
-        if cls not in g_classes:  # note: in some rooms there is a 'stair' class
-            print(f"Class '{cls}' not found in g_classes. Treating as 'clutter'.")
+        print(f)
+        if cls not in g_classes: # note: in some room there is 'staris' class..
             cls = 'clutter'
 
-        try:
-            points = np.loadtxt(f)
-            print(f"Loaded {points.shape[0]} points from {f}")
-            labels = np.ones((points.shape[0], 1)) * g_class2label[cls]
-            print(f"Assigned label {g_class2label[cls]} to all points.")
-            points_list.append(np.concatenate([points, labels], 1))  # Nx7
-        except Exception as e:
-            print(f"Error loading points from {f}: {e}")
+        points = np.loadtxt(f)
+        labels = np.ones((points.shape[0],1)) * g_class2label[cls]
+        points_list.append(np.concatenate([points, labels], 1)) # Nx7
     
-    print(f"Length of points_list: {len(points_list)}")
-    
-    if len(points_list) == 0:
-        print(f"Warning: No points were collected from the directory {anno_path}. Check the directory and files.")
-        return
-
     data_label = np.concatenate(points_list, 0)
-    print(f"Concatenated data contains {data_label.shape[0]} points.")
-    
     xyz_min = np.amin(data_label, axis=0)[0:3]
-    print(f"Shifting points by xyz_min: {xyz_min}")
     data_label[:, 0:3] -= xyz_min
     
-    if file_format == 'txt':
-        print(f"Saving data to {out_filename} in txt format.")
+    if file_format=='txt':
         fout = open(out_filename, 'w')
         for i in range(data_label.shape[0]):
             fout.write('%f %f %f %d %d %d %d\n' % \
@@ -140,13 +67,12 @@ def collect_point_label(anno_path, out_filename, file_format='txt'):
                            data_label[i,3], data_label[i,4], data_label[i,5],
                            data_label[i,6]))
         fout.close()
-    elif file_format == 'numpy':
-        print(f"Saving data to {out_filename} in numpy format.")
+    elif file_format=='numpy':
         np.save(out_filename, data_label)
     else:
-        print(f'ERROR!! Unknown file format: {file_format}, please use txt or numpy.')
+        print('ERROR!! Unknown file format: %s, please use txt or numpy.' % \
+            (file_format))
         exit()
-
 
 def data_to_obj(data,name='example.obj',no_wall=True):
     fout = open(name, 'w')

@@ -1,6 +1,6 @@
 import os
 import numpy as np
-
+import torch, time, random
 from tqdm import tqdm
 from torch.utils.data import Dataset
 
@@ -178,7 +178,6 @@ if __name__ == '__main__':
     print('point data size:', point_data.__len__())
     print('point data 0 shape:', point_data.__getitem__(0)[0].shape)
     print('point label 0 shape:', point_data.__getitem__(0)[1].shape)
-    import torch, time, random
     manual_seed = 123
     random.seed(manual_seed)
     np.random.seed(manual_seed)

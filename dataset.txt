@@ -1,0 +1,14 @@
+The Stanford 3D Indoor Scene Dataset (S3DIS) contains 13 semantic classes for 3D point cloud segmentation. The semantic classes in S3DIS are:
+Ceiling
+Floor
+Wall
+Beam
+Column
+Window
+Door
+Table
+Chair
+Sofa
+Bookcase
+Board
+Clutter

@@ -58,7 +58,7 @@ def process_h5_files(input_folder, output_folder, key='pointcloud'):
     print(f"Processing complete. Files saved to {output_folder}")
 
 # Example usage
-input_folder  = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_4_labels_z_rotated_y_mod_downsamp_0.2'  # Folder containing the original .h5 files
-output_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_4_labels_z_rotated_y_mod_downsamp_0.2_pcd'  # Folder to save the .pcd files
+input_folder  = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_downsamp_0.2'  # Folder containing the original .h5 files
+output_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_downsamp_0.2_pcd'  # Folder to save the .pcd files
 
 process_h5_files(input_folder, output_folder)

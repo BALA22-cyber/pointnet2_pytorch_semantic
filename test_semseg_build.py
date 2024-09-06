@@ -156,10 +156,11 @@ def main(args):
     # checkpoint = torch.load(os.path.join(experiment_dir, 'checkpoints', 'best_model.pth'))
     checkpoint = torch.load(str(experiment_dir) + '/checkpoints/best_model.pth')
     classifier.load_state_dict(checkpoint['model_state_dict'])
+
     classifier.eval()
 
     # Load the test dataset
-    dataset = BuildingDatasetWholeScene(root='data/s3dis/buildings_h5_wall_downsampled_0.2', split='test', block_points=args.num_point)
+    dataset = BuildingDatasetWholeScene(root='/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_4_labels_z_rotated_y_mod_downsamp_0.2', split='test', block_points=args.num_point)
     log_string(f"Number of test data points: {len(dataset)}")
     # DataLoader for testing
     test_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=16, pin_memory=True)

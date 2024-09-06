@@ -23,18 +23,6 @@ class BuildingDataset(Dataset):
             self.test_data, self.test_labels = self.perform_test_split()
         self.labelweights = self.calculate_labelweights()
 
-    def random_z_rotation(self,pointcloud):
-        """Apply a random rotation around the z-axis to the pointcloud."""
-        theta = np.random.uniform(0, 2 * np.pi)  # Random angle between 0 and 2π
-        rotation_matrix = np.array([[np.cos(theta), -np.sin(theta), 0],
-                                    [np.sin(theta),  np.cos(theta), 0],
-                                    [0,              0,             1]])
-        
-        # Apply the rotation to the xyz coordinates (first 3 columns)
-        pointcloud[:, :3] = np.dot(pointcloud[:, :3], rotation_matrix.T)
-        
-        return pointcloud
-
     def load_data(self):
         all_data = []
         all_labels = []
@@ -44,11 +32,11 @@ class BuildingDataset(Dataset):
                 dataset = np.array(f['pointcloud'], dtype=np.float32)
 
                 # Extracting x, y, z, r, g, b (excluding intensity, which is index 3)
-                data = dataset[:, [0, 1, 2, 4, 5, 6]]
+                data = dataset[:, [0, 1, 2, 3, 4 ,5]]
                 # print(f"Shape of data from {h5_file}: {data.shape}")  # Debug print
                 
                 # Extracting the labels (last column)
-                labels = dataset[:, 7]
+                labels = dataset[:, 6]
                 # print(f"Shape of labels from {h5_file}: {labels.shape}")  # Debug print
                 # data = self.random_z_rotation(data)
                 all_data.append(data)

@@ -23,7 +23,7 @@ ROOT_DIR = BASE_DIR
 sys.path.append(os.path.join(ROOT_DIR, 'models'))
 
 # Adjusted class labels for your dataset
-classes = ['window', 'wall', 'door', 'vent', 'others']
+classes = ["man-made terrain", "natural terrain", "high vegetation", "low vegetation", "buildings", "hard scape", "scanning artifact", "cars"]
 class2label = {cls: i for i, cls in enumerate(classes)}
 seg_classes = class2label
 seg_label_to_cat = {}
@@ -90,7 +90,7 @@ def main(args):
     log_string(args)
 
     root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_wall_downsampled_0.2'
-    NUM_CLASSES = 4  # Adjusted for your classes
+    NUM_CLASSES = 8  # Adjusted for your classes
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size
 

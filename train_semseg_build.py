@@ -38,14 +38,14 @@ def inplace_relu(m):
 def parse_args():
     parser = argparse.ArgumentParser('Model')
     parser.add_argument('--model', type=str, default='pointnet_sem_seg', help='model name [default: pointnet_sem_seg]')
-    parser.add_argument('--batch_size', type=int, default=64, help='Batch Size during training [default: 16]')
-    parser.add_argument('--epoch', default=32, type=int, help='Epoch to run [default: 32]')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch Size during training [default: 16]')
+    parser.add_argument('--epoch', default=5, type=int, help='Epoch to run [default: 32]')
     parser.add_argument('--learning_rate', default=0.001, type=float, help='Initial learning rate [default: 0.001]')
     parser.add_argument('--gpu', type=str, default='0', help='GPU to use [default: GPU 0]')
     parser.add_argument('--optimizer', type=str, default='Adam', help='Adam or SGD [default: Adam]')
     parser.add_argument('--log_dir', type=str, default=None, help='Log path [default: None]')
     parser.add_argument('--decay_rate', type=float, default=1e-4, help='weight decay [default: 1e-4]')
-    parser.add_argument('--npoint', type=int, default=1024, help='Point Number [default: 4096]')
+    parser.add_argument('--npoint', type=int, default=4096, help='Point Number [default: 4096]')
     parser.add_argument('--step_size', type=int, default=10, help='Decay step for lr decay [default: every 10 epochs]')
     parser.add_argument('--lr_decay', type=float, default=0.7, help='Decay rate for lr decay [default: 0.7]')
     parser.add_argument('--test_area', type=int, default=5, help='Which area to use for test, option: 1-6 [default: 5]')
@@ -89,8 +89,8 @@ def main(args):
     log_string('PARAMETER ...')
     log_string(args)
 
-    root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_labels_fixed/'
-    NUM_CLASSES = 5  # Adjusted for your classes
+    root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_wall_downsampled_0.2'
+    NUM_CLASSES = 4  # Adjusted for your classes
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size
 

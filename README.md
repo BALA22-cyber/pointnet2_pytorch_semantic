@@ -106,13 +106,16 @@ python collect_indoor3d_data.py
 ```
 Processed data will save in `data/stanford_indoor3d/`.
 ### Run
-```
+```shell
 ## Check model in ./models 
 ## e.g., pointnet2_ssg
-python train_semseg_build.py --model pointnet2_sem_seg --log_dir building_sem_seg
+python train_semseg_build.py --model pointnet2_sem_seg --log_dir building_wall_downsampled_epoch5
 python train_semseg.py --model pointnet2_sem_seg --test_area 5 --log_dir final_sem_seg
 python train_semseg.py --model pointnet2_sem_seg --test_area 5 --log_dir pointnet2_sem_seg
 python test_semseg.py --log_dir pointnet2_sem_seg --test_area 5 --visual
+python test_semseg_build.py --log_dir pointnet2_sem_seg  --batch_size 32 --gpu 0 --num_votes 5 --visual
+
+log/sem_seg/building_vent_removed2
 ```
 Visualization results will save in `log/sem_seg/pointnet2_sem_seg/visual/` and you can visualize these .obj file by [MeshLab](http://www.meshlab.net/).
 

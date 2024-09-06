@@ -8,6 +8,7 @@ from data_utils.S3DISDataLoader import ScannetDatasetWholeScene
 from data_utils.indoor3d_util import g_label2color
 import torch
 import logging
+from time import time
 from pathlib import Path
 import sys
 import importlib
@@ -86,7 +87,10 @@ def main(args):
 
     '''MODEL LOADING'''
     model_name = os.listdir(experiment_dir + '/logs')[0].split('.')[0]
+    
     MODEL = importlib.import_module(model_name)
+    print("model name:   ",model_name)
+    # time.sleep(3) 
     classifier = MODEL.get_model(NUM_CLASSES).cuda()
     checkpoint = torch.load(str(experiment_dir) + '/checkpoints/best_model.pth')
     classifier.load_state_dict(checkpoint['model_state_dict'])

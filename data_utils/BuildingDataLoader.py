@@ -21,13 +21,12 @@ class BuildingDataset(Dataset):
             self.train_data, self.train_labels = self.perform_train_split()
         else:
             self.test_data, self.test_labels = self.perform_test_split()
-                # Calculate labelweights
         self.labelweights = self.calculate_labelweights()
 
     def load_data(self):
         all_data = []
         all_labels = []
-        for h5_file in self.file_list:
+        for h5_file in tqdm(self.file_list, desc="Loading files", unit="file"):
             with h5py.File(h5_file, 'r') as f:
                 # Explicitly cast to float32 to avoid precision issues
                 dataset = np.array(f['pointcloud'], dtype=np.float32)
@@ -49,8 +48,8 @@ class BuildingDataset(Dataset):
         return all_data, all_labels
     
     def calculate_labelweights(self):
-        # There are 5 classes: window (0), wall (1), door (2), vent (3), others (4)
-        num_classes = 5
+        # There are 5 classes: window (0), wall (1), door (2), others (3). vent has been removed
+        num_classes = 4
         label_histogram = np.zeros(num_classes)
 
         # Count the number of occurrences of each class in the training set
@@ -58,7 +57,7 @@ class BuildingDataset(Dataset):
             labels = self.train_labels
         else:
             labels = self.test_labels
-
+        labels = labels.flatten()  # Flatten to ensure a single array
         for label in labels:
             label_histogram[int(label)] += 1
 
@@ -66,8 +65,11 @@ class BuildingDataset(Dataset):
         total_labels = np.sum(label_histogram)
         label_histogram = label_histogram / total_labels
 
+        if np.any(label_histogram == 0):
+            print("Warning: Some classes have zero frequency.")
+
         # Avoid divide by zero by replacing zero values with a small number
-        label_histogram[label_histogram == 0] = 1e-6  # Set a small value for missing classes
+        # label_histogram[label_histogram == 0] = 1e-6  # Set a small value for missing classes
 
         # Calculate label weights: inversely proportional to the frequency, raised to 1/3 power
         labelweights = np.power(np.amax(label_histogram) / label_histogram, 1 / 3.0)
@@ -77,18 +79,18 @@ class BuildingDataset(Dataset):
 
     
     def perform_train_split(self):
-        # Example logic for train split: Select 80% of the data for training
         total_points = len(self.data)
         split_idx = int(0.8 * total_points)
         train_data = self.data[:split_idx]
+        print("total_points for train split ",len(train_data))
         train_labels = self.labels[:split_idx]
         return train_data, train_labels
     
     def perform_test_split(self):
-        # Example logic for test split: Select the remaining 20% of the data for testing
         total_points = len(self.data)
         split_idx = int(0.8 * total_points)
         test_data = self.data[split_idx:]
+        print("total_points for test split ",len(test_data))
         test_labels = self.labels[split_idx:]
         return test_data, test_labels
     
@@ -134,9 +136,100 @@ class BuildingDataset(Dataset):
         else:
             return len(self.test_data) // self.num_point
 
+class BuildingDatasetWholeScene(Dataset):
+    def __init__(self, root, split='train', block_points=4096, block_size=1.0, stride=1.0, padding=0.001):
+        self.block_points = block_points
+        self.block_size = block_size
+        self.padding = padding
+        self.root = root
+        self.split = split
+
+        self.file_list = [f for f in os.listdir(root) if f.endswith('.h5')]
+
+        self.data, self.labels = self.load_data()
+
+        # Perform the train-test split
+        if self.split == 'train':
+            self.train_data, self.train_labels = self.perform_train_split()
+        else:
+            self.test_data, self.test_labels = self.perform_test_split()
+
+    def load_data(self):
+        """Load all data and labels from the .h5 files."""
+        all_data = []
+        all_labels = []
+
+        for file in tqdm(self.file_list, desc="Loading files", unit="file"):
+            with h5py.File(os.path.join(self.root, file), 'r') as f:
+                dataset = np.array(f['pointcloud'], dtype=np.float32)
+
+                # Extract xyzrgb (ignoring intensity) and labels
+                data = dataset[:, [0, 1, 2, 4, 5, 6]]  # xyzrgb
+                labels = dataset[:, -1]  # The last column is the label
+
+                all_data.append(data)
+                all_labels.append(labels)
+
+        all_data = np.concatenate(all_data, axis=0)
+        all_labels = np.concatenate(all_labels, axis=0)
+
+        print(f"Loaded data shape: {all_data.shape}")
+        print(f"Loaded label shape: {all_labels.shape}")
+
+        return all_data, all_labels
+
+    def perform_train_split(self):
+        """Split the dataset for training."""
+        total_points = len(self.data)
+        split_idx = int(0.8 * total_points)
+        train_data = self.data[:split_idx]
+        train_labels = self.labels[:split_idx]
+
+        print(f"Train data size: {train_data.shape[0]}")
+        return train_data, train_labels
+
+    def perform_test_split(self):
+        """Split the dataset for testing."""
+        total_points = len(self.data)
+        split_idx = int(0.8 * total_points)
+        test_data = self.data[split_idx:]
+        test_labels = self.labels[split_idx:]
+
+        print(f"Test data size: {test_data.shape[0]}")
+        return test_data, test_labels
+
+    def __getitem__(self, idx):
+        if self.split == 'train':
+            data = self.train_data
+            labels = self.train_labels
+        else:
+            data = self.test_data
+            labels = self.test_labels
+
+        # Sample a block of points
+        start_idx = idx * self.block_points
+        end_idx = (idx + 1) * self.block_points
+
+        points = data[start_idx:end_idx]
+        label_block = labels[start_idx:end_idx]
+
+        # If there are fewer points, oversample
+        if points.shape[0] < self.block_points:
+            selected_idxs = np.random.choice(points.shape[0], self.block_points, replace=True)
+            points = points[selected_idxs]
+            label_block = label_block[selected_idxs]
+
+        return points, label_block
+
+    def __len__(self):
+        if self.split == 'train':
+            return len(self.train_data) // self.block_points
+        else:
+            return len(self.test_data) // self.block_points
+
 if __name__ == '__main__':
 
-    data_root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_labels_fixed'  
+    data_root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_4_labels'  
     num_point,block_size,sample_rate = 4096, 1.0, 0.01
 
     # Initialize the dataset for training

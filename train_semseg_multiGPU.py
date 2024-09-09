@@ -77,9 +77,9 @@ def parse_args():
 
 def main(args):
     args.world_size = torch.cuda.device_count()
-    mp.spawn(main_worker, args=(args,), nprocs=args.world_size, join=True)
+    main_worker(args)
 
-def main_worker(gpu, args):
+def main_worker(args):
     ddp_setup(args.world_size)
     def log_string(str):
         logger.info(str)
@@ -131,10 +131,10 @@ def main_worker(gpu, args):
     print("start loading test data ...")
     TEST_DATASET = BuildingDataset(split='test', data_root=root, num_point=NUM_POINT, block_size=1.0, sample_rate=1.0, transform=None)
 
-    trainDataLoader = torch.utils.data.DataLoader(TRAIN_DATASET, batch_size=BATCH_SIZE, shuffle=False, sampler=DistributedSampler(train_dataset), num_workers=10,
+    trainDataLoader = torch.utils.data.DataLoader(TRAIN_DATASET, batch_size=BATCH_SIZE, shuffle=False, sampler=DistributedSampler(TRAIN_DATASET), num_workers=10,
                                                   pin_memory=True, drop_last=True,
                                                   worker_init_fn=lambda x: np.random.seed(x + int(time.time())))
-    testDataLoader = torch.utils.data.DataLoader(TEST_DATASET, batch_size=BATCH_SIZE, shuffle=False, sampler=DistributedSampler(train_dataset), num_workers=10,
+    testDataLoader = torch.utils.data.DataLoader(TEST_DATASET, batch_size=BATCH_SIZE, shuffle=False, sampler=DistributedSampler(TEST_DATASET), num_workers=10,
                                                  pin_memory=True, drop_last=True)
     weights = torch.Tensor(TRAIN_DATASET.labelweights).cuda()
 
@@ -143,7 +143,9 @@ def main_worker(gpu, args):
 
     '''MODEL LOADING'''
     MODEL = importlib.import_module(args.model)
-    MODEL = DDP(model, device_ids=[rank])
+    print('MODEL', MODEL)
+    MODEL = DDP(MODEL, device_ids=[rank])
+    print('after DDP MODEL', MODEL)
     shutil.copy('models/%s.py' % args.model, str(experiment_dir))
     shutil.copy('models/pointnet2_utils.py', str(experiment_dir))
 
@@ -326,4 +328,3 @@ def main_worker(gpu, args):
 if __name__ == '__main__':
     args = parse_args()
     main(args)
-

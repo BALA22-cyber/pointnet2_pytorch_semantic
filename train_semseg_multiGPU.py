@@ -18,10 +18,25 @@ import provider
 import numpy as np
 import time
 
-import torch.distributed as dist
 import torch.multiprocessing as mp
-from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.distributed import init_process_group, destroy_process_group
+import os
+
+rank = 0
+
+def ddp_setup(world_size: int):
+    """
+    Args:
+        rank: Unique identifier of each process
+        world_size: Total number of processes
+    """
+    os.environ["MASTER_ADDR"] = "localhost"
+    os.environ["MASTER_PORT"] = "12355"
+    rank = os.environ["SLURM_PROCID"]
+    torch.cuda.set_device(f"cuda:{rank}")
+    init_process_group(backend="nccl", rank=int(rank), world_size=world_size)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = BASE_DIR
@@ -46,7 +61,7 @@ def parse_args():
     parser.add_argument('--batch_size', type=int, default=32, help='Batch Size during training [default: 16]')
     parser.add_argument('--epoch', default=5, type=int, help='Epoch to run [default: 32]')
     parser.add_argument('--learning_rate', default=0.001, type=float, help='Initial learning rate [default: 0.001]')
-    parser.add_argument('--gpu', type=str, default='0', help='GPU to use [default: GPU 0]')
+    #parser.add_argument('--gpu', type=str, default='0', help='GPU to use [default: GPU 0]')
     parser.add_argument('--optimizer', type=str, default='Adam', help='Adam or SGD [default: Adam]')
     parser.add_argument('--log_dir', type=str, default=None, help='Log path [default: None]')
     parser.add_argument('--decay_rate', type=float, default=1e-4, help='weight decay [default: 1e-4]')
@@ -54,32 +69,24 @@ def parse_args():
     parser.add_argument('--step_size', type=int, default=10, help='Decay step for lr decay [default: every 10 epochs]')
     parser.add_argument('--lr_decay', type=float, default=0.7, help='Decay rate for lr decay [default: 0.7]')
     parser.add_argument('--test_area', type=int, default=5, help='Which area to use for test, option: 1-6 [default: 5]')
+    #parser.add_argument('--rank', type=int, default=5, help='rank is auto-allocated by DDP when calling mp.spawn')
+    parser.add_argument('--world_size', type=int, default=5, help='world_size is the number of processes across the training job')
     
     return parser.parse_args()
+
 
 def main(args):
     args.world_size = torch.cuda.device_count()
     mp.spawn(main_worker, args=(args,), nprocs=args.world_size, join=True)
 
 def main_worker(gpu, args):
-    args.gpu = gpu
-    args.rank = gpu
-    
-    dist.init_process_group(
-        backend='nccl',
-        init_method='tcp://127.0.0.1:12345',
-        world_size=args.world_size,
-        rank=args.rank
-    )
-    
-    torch.cuda.set_device(args.gpu)
-
+    ddp_setup(args.world_size)
     def log_string(str):
         logger.info(str)
         print(str)
 
     '''HYPER PARAMETER'''
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = str(rank)
 
     '''CREATE DIR'''
     timestr = str(datetime.datetime.now().strftime('%Y-%m-%d_%H-%M'))
@@ -109,7 +116,8 @@ def main_worker(gpu, args):
     log_string('PARAMETER ...')
     log_string(args)
 
-    root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_wall_downsampled_0.2'
+    #root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_wall_downsampled_0.2'
+    root = '/ccsopen/proj/trn029/project/pointnet2_pytorch_semantic/data/buildings_3labels_downsamp_0.2'    
     NUM_CLASSES = 4  # Adjusted for your classes
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size
@@ -122,19 +130,12 @@ def main_worker(gpu, args):
     TRAIN_DATASET = BuildingDataset(split='train', data_root=root, num_point=NUM_POINT, block_size=1.0, sample_rate=1.0, transform=None)
     print("start loading test data ...")
     TEST_DATASET = BuildingDataset(split='test', data_root=root, num_point=NUM_POINT, block_size=1.0, sample_rate=1.0, transform=None)
-	
-	train_sampler = DistributedSampler(TRAIN_DATASET)
-	test_sampler = DistributedSampler(TEST_DATASET, shuffle=False)
 
-	trainDataLoader = torch.utils.data.DataLoader(
-		TRAIN_DATASET, batch_size=BATCH_SIZE, sampler=train_sampler,
-		num_workers=10, pin_memory=True, drop_last=True
-	)
-	testDataLoader = torch.utils.data.DataLoader(
-		TEST_DATASET, batch_size=BATCH_SIZE, sampler=test_sampler,
-		num_workers=10, pin_memory=True, drop_last=True
-	)
-	
+    trainDataLoader = torch.utils.data.DataLoader(TRAIN_DATASET, batch_size=BATCH_SIZE, shuffle=False, sampler=DistributedSampler(train_dataset), num_workers=10,
+                                                  pin_memory=True, drop_last=True,
+                                                  worker_init_fn=lambda x: np.random.seed(x + int(time.time())))
+    testDataLoader = torch.utils.data.DataLoader(TEST_DATASET, batch_size=BATCH_SIZE, shuffle=False, sampler=DistributedSampler(train_dataset), num_workers=10,
+                                                 pin_memory=True, drop_last=True)
     weights = torch.Tensor(TRAIN_DATASET.labelweights).cuda()
 
     log_string("The number of training data is: %d" % len(TRAIN_DATASET))
@@ -142,11 +143,11 @@ def main_worker(gpu, args):
 
     '''MODEL LOADING'''
     MODEL = importlib.import_module(args.model)
+    MODEL = DDP(model, device_ids=[rank])
     shutil.copy('models/%s.py' % args.model, str(experiment_dir))
     shutil.copy('models/pointnet2_utils.py', str(experiment_dir))
 
-    classifier = MODEL.get_model(NUM_CLASSES).cuda(args.gpu)
-	classifier = DDP(classifier, device_ids=[args.gpu])
+    classifier = MODEL.get_model(NUM_CLASSES).cuda()
     criterion = MODEL.get_loss().cuda()
     classifier.apply(inplace_relu)
 
@@ -193,7 +194,6 @@ def main_worker(gpu, args):
     best_iou = 0
 
     for epoch in range(start_epoch, args.epoch):
-		train_sampler.set_epoch(epoch)
         '''Train on chopped scenes'''
         log_string('**** Epoch %d (%d/%s) ****' % (global_epoch + 1, epoch + 1, args.epoch))
         lr = max(args.learning_rate * (args.lr_decay ** (epoch // args.step_size)), LEARNING_RATE_CLIP)
@@ -210,6 +210,7 @@ def main_worker(gpu, args):
         total_seen = 0
         loss_sum = 0
         classifier = classifier.train()
+        trainDataLoader.sampler.set_epoch(epoch)
 
         for i, (points, target) in tqdm(enumerate(trainDataLoader), total=len(trainDataLoader), smoothing=0.9):
             optimizer.zero_grad()
@@ -236,14 +237,14 @@ def main_worker(gpu, args):
         log_string('Training mean loss: %f' % (loss_sum / num_batches))
         log_string('Training accuracy: %f' % (total_correct / float(total_seen)))
 
-        if epoch % 5 == 0:
+        if rank == 0 and epoch % 5 == 0:
             logger.info('Save model...')
             savepath = str(checkpoints_dir) + '/model.pth'
             log_string('Saving at %s' % savepath)
             state = {
                 'epoch': epoch,
-                'model_state_dict': classifier.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
+                'model_state_dict': classifier.module.state_dict(),
+                'optimizer_state_dict': optimizer.module.state_dict(),
             }
             torch.save(state, savepath)
             log_string('Saving model....')
@@ -287,25 +288,6 @@ def main_worker(gpu, args):
                     total_correct_class[l] += np.sum((pred_val == l) & (batch_label == l))
                     total_iou_deno_class[l] += np.sum(((pred_val == l) | (batch_label == l)))
 
-			# After the loop, perform all_reduce operations
-			if dist.is_initialized():
-				loss_sum = torch.tensor(loss_sum).cuda()
-				total_correct = torch.tensor(total_correct).cuda()
-				total_seen = torch.tensor(total_seen).cuda()
-				total_correct_class = torch.tensor(total_correct_class).cuda()
-				total_seen_class = torch.tensor(total_seen_class).cuda()
-				total_iou_deno_class = torch.tensor(total_iou_deno_class).cuda()
-				labelweights = torch.tensor(labelweights).cuda()
-
-				dist.all_reduce(loss_sum)
-				dist.all_reduce(total_correct)
-				dist.all_reduce(total_seen)
-				dist.all_reduce(total_correct_class)
-				dist.all_reduce(total_seen_class)
-				dist.all_reduce(total_iou_deno_class)
-				dist.all_reduce(labelweights)
-
-	
             labelweights = labelweights.astype(np.float32) / np.sum(labelweights.astype(np.float32))
             mIoU = np.mean(np.array(total_correct_class) / (np.array(total_iou_deno_class, dtype=np.float64) + 1e-6))
             log_string('eval mean loss: %f' % (loss_sum / float(num_batches)))
@@ -323,25 +305,25 @@ def main_worker(gpu, args):
             log_string(iou_per_class_str)
             log_string('Eval mean loss: %f' % (loss_sum / num_batches))
             log_string('Eval accuracy: %f' % (total_correct / float(total_seen)))
-			
-			if args.rank == 0:
-				if mIoU >= best_iou:
-					best_iou = mIoU
-					logger.info('Save model...')
-					savepath = str(checkpoints_dir) + '/best_model.pth'
-					log_string('Saving at %s' % savepath)
-					state = {
-						'epoch': epoch,
-						'class_avg_iou': mIoU,
-						'model_state_dict': classifier.state_dict(),
-						'optimizer_state_dict': optimizer.state_dict(),
-					}
-					torch.save(state, savepath)
-					log_string('Saving model....')
-				log_string('Best mIoU: %f' % best_iou)
+
+            if mIoU >= best_iou:
+                best_iou = mIoU
+                logger.info('Save model...')
+                savepath = str(checkpoints_dir) + '/best_model.pth'
+                log_string('Saving at %s' % savepath)
+                state = {
+                    'epoch': epoch,
+                    'class_avg_iou': mIoU,
+                    'model_state_dict': classifier.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                }
+                torch.save(state, savepath)
+                log_string('Saving model....')
+            log_string('Best mIoU: %f' % best_iou)
         global_epoch += 1
 
 
 if __name__ == '__main__':
     args = parse_args()
     main(args)
+

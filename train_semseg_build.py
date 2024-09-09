@@ -89,7 +89,8 @@ def main(args):
     log_string('PARAMETER ...')
     log_string(args)
 
-    root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_3labels_downsamp_0.2'
+    # root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_3labels_downsamp_0.2'
+    root = '/ccsopen/proj/trn029/project/pointnet2_pytorch_semantic/data/s3dis/buildings_3labels_downsamp_0.2'
     NUM_CLASSES = 3  # Adjusted for your classes
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size
@@ -147,7 +148,8 @@ def main(args):
 
     try: 
         # checkpoint = torch.load(str(experiment_dir) + '/checkpoints/best_model.pth')
-        checkpoint= torch.load('pointnet2_pytorch_semantic/log/sem_seg/final_sem_seg/checkpoints/best_model.pth')
+        # checkpoint= torch.load('/mnt/e/pointnet2_pytorch_semantic/log/sem_seg/final_sem_seg/checkpoints/best_model.pth')
+        checkpoint= torch.load('/ccsopen/proj/trn029/project/pointnet2_pytorch_semantic/log/sem_seg/final_sem_seg/checkpoints/best_model.pth')
         start_epoch = checkpoint['epoch']
         classifier = classifier.apply(weights_init)
         print("try 1")

@@ -60,8 +60,8 @@ class BuildingDataset(Dataset):
         return all_data, all_labels
     
     def calculate_labelweights(self):
-        # There are 5 classes: window (0), wall (1), door (2), others (3). vent has been removed
-        num_classes = 4
+        # There are 5 classes: window (0), wall (1), door (2), others (3). vent has been removed and doors are added with windows.
+        num_classes = 3
         label_histogram = np.zeros(num_classes)
 
         # Count the number of occurrences of each class in the training set

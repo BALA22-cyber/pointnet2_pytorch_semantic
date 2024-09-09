@@ -50,7 +50,7 @@ def plot_class_distribution(class_counts):
 
 # Folder containing the .h5 files
 # folder_path = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_4_labels'
-folder_path =r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_4_labels_z_rotated_y_mod_downsamp_0.2'
+folder_path = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_aligned'
 
 # Get class distribution
 class_counts = get_class_distribution(folder_path)

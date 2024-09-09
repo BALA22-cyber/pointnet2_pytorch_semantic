@@ -94,7 +94,8 @@ def add_vote(vote_label_pool, point_idx, pred_label, weight):
         pred_label (np.array): Predicted labels for the current batch.
         weight (np.array): Weights for each prediction.
     """
-    B, N = pred_label.shape
+    B = pred_label.shape[0]
+    N = pred_label.shape[1]
     for b in range(B):
         for n in range(N):
             if weight[b, n] != 0:

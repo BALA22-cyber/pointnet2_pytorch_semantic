@@ -23,7 +23,7 @@ ROOT_DIR = BASE_DIR
 sys.path.append(os.path.join(ROOT_DIR, 'models'))
 
 # Adjusted class labels for your dataset
-classes = ['window', 'wall', 'door', 'vent', 'others']
+classes = ['windows + doors', 'wall', 'others']#, 'vent', 'others']
 class2label = {cls: i for i, cls in enumerate(classes)}
 seg_classes = class2label
 seg_label_to_cat = {}
@@ -89,8 +89,8 @@ def main(args):
     log_string('PARAMETER ...')
     log_string(args)
 
-    root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_downsamp_0.2'
-    NUM_CLASSES = 4  # Adjusted for your classes
+    root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_3labels_downsamp_0.2'
+    NUM_CLASSES = 3  # Adjusted for your classes
     NUM_POINT = args.npoint
     BATCH_SIZE = args.batch_size
 
@@ -146,7 +146,8 @@ def main(args):
         return model
 
     try: 
-        checkpoint = torch.load(str(experiment_dir) + '/checkpoints/best_model.pth')
+        # checkpoint = torch.load(str(experiment_dir) + '/checkpoints/best_model.pth')
+        checkpoint= torch.load('pointnet2_pytorch_semantic/log/sem_seg/final_sem_seg/checkpoints/best_model.pth')
         start_epoch = checkpoint['epoch']
         classifier = classifier.apply(weights_init)
         print("try 1")

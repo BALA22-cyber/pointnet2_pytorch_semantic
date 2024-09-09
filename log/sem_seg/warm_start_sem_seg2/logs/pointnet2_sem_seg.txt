@@ -1,0 +1,218 @@
+2024-09-09 10:09:52,614 - Model - INFO - PARAMETER ...
+2024-09-09 10:09:52,614 - Model - INFO - Namespace(model='pointnet2_sem_seg', batch_size=32, epoch=20, learning_rate=0.001, gpu='0', optimizer='Adam', log_dir='warm_start_sem_seg2', decay_rate=0.0001, npoint=8192, step_size=12, lr_decay=0.7, test_area=5)
+2024-09-09 10:10:26,223 - Model - INFO - The number of training data is: 5123
+2024-09-09 10:10:26,223 - Model - INFO - The number of test data is: 1280
+2024-09-09 10:10:26,293 - Model - INFO - No existing model, starting training from scratch...
+2024-09-09 10:10:26,787 - Model - INFO - **** Epoch 1 (1/20) ****
+2024-09-09 10:10:26,788 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:12:32,793 - Model - INFO - Training mean loss: 0.443087
+2024-09-09 10:12:32,794 - Model - INFO - Training accuracy: 0.841509
+2024-09-09 10:12:32,794 - Model - INFO - Save model...
+2024-09-09 10:12:32,794 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/model.pth
+2024-09-09 10:12:32,921 - Model - INFO - Saving model....
+2024-09-09 10:12:32,929 - Model - INFO - ---- EPOCH 001 EVALUATION ----
+2024-09-09 10:13:02,854 - Model - INFO - eval mean loss: 0.717499
+2024-09-09 10:13:02,854 - Model - INFO - eval point avg class IoU: 0.527914
+2024-09-09 10:13:02,854 - Model - INFO - eval point accuracy: 0.710553
+2024-09-09 10:13:02,855 - Model - INFO - eval point avg class acc: 0.695551
+2024-09-09 10:13:02,855 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.535 
+class wall           weight: 0.315, IoU: 0.647 
+class others         weight: 0.481, IoU: 0.401 
+
+2024-09-09 10:13:02,855 - Model - INFO - Eval mean loss: 0.717499
+2024-09-09 10:13:02,855 - Model - INFO - Eval accuracy: 0.710553
+2024-09-09 10:13:02,855 - Model - INFO - Save model...
+2024-09-09 10:13:02,856 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/best_model.pth
+2024-09-09 10:13:02,981 - Model - INFO - Saving model....
+2024-09-09 10:13:02,981 - Model - INFO - Best mIoU: 0.527914
+2024-09-09 10:13:02,981 - Model - INFO - **** Epoch 2 (2/20) ****
+2024-09-09 10:13:02,982 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:15:09,057 - Model - INFO - Training mean loss: 0.349648
+2024-09-09 10:15:09,057 - Model - INFO - Training accuracy: 0.884086
+2024-09-09 10:15:09,068 - Model - INFO - ---- EPOCH 002 EVALUATION ----
+2024-09-09 10:15:39,047 - Model - INFO - eval mean loss: 0.239370
+2024-09-09 10:15:39,047 - Model - INFO - eval point avg class IoU: 0.812904
+2024-09-09 10:15:39,047 - Model - INFO - eval point accuracy: 0.912991
+2024-09-09 10:15:39,048 - Model - INFO - eval point avg class acc: 0.905049
+2024-09-09 10:15:39,048 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.755 
+class wall           weight: 0.315, IoU: 0.967 
+class others         weight: 0.481, IoU: 0.717 
+
+2024-09-09 10:15:39,048 - Model - INFO - Eval mean loss: 0.239370
+2024-09-09 10:15:39,048 - Model - INFO - Eval accuracy: 0.912991
+2024-09-09 10:15:39,049 - Model - INFO - Save model...
+2024-09-09 10:15:39,049 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/best_model.pth
+2024-09-09 10:15:39,179 - Model - INFO - Saving model....
+2024-09-09 10:15:39,179 - Model - INFO - Best mIoU: 0.812904
+2024-09-09 10:15:39,179 - Model - INFO - **** Epoch 3 (3/20) ****
+2024-09-09 10:15:39,180 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:17:45,793 - Model - INFO - Training mean loss: 0.268346
+2024-09-09 10:17:45,794 - Model - INFO - Training accuracy: 0.914031
+2024-09-09 10:17:45,806 - Model - INFO - ---- EPOCH 003 EVALUATION ----
+2024-09-09 10:18:16,051 - Model - INFO - eval mean loss: 0.316862
+2024-09-09 10:18:16,051 - Model - INFO - eval point avg class IoU: 0.687416
+2024-09-09 10:18:16,052 - Model - INFO - eval point accuracy: 0.857149
+2024-09-09 10:18:16,052 - Model - INFO - eval point avg class acc: 0.790252
+2024-09-09 10:18:16,052 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.722 
+class wall           weight: 0.315, IoU: 0.906 
+class others         weight: 0.481, IoU: 0.434 
+
+2024-09-09 10:18:16,053 - Model - INFO - Eval mean loss: 0.316862
+2024-09-09 10:18:16,053 - Model - INFO - Eval accuracy: 0.857149
+2024-09-09 10:18:16,053 - Model - INFO - Best mIoU: 0.812904
+2024-09-09 10:18:16,053 - Model - INFO - **** Epoch 4 (4/20) ****
+2024-09-09 10:18:16,053 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:20:21,114 - Model - INFO - Training mean loss: 0.251033
+2024-09-09 10:20:21,115 - Model - INFO - Training accuracy: 0.920791
+2024-09-09 10:20:21,126 - Model - INFO - ---- EPOCH 004 EVALUATION ----
+2024-09-09 10:20:51,135 - Model - INFO - eval mean loss: 0.191097
+2024-09-09 10:20:51,136 - Model - INFO - eval point avg class IoU: 0.840269
+2024-09-09 10:20:51,136 - Model - INFO - eval point accuracy: 0.930053
+2024-09-09 10:20:51,136 - Model - INFO - eval point avg class acc: 0.914511
+2024-09-09 10:20:51,136 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.806 
+class wall           weight: 0.315, IoU: 0.982 
+class others         weight: 0.481, IoU: 0.733 
+
+2024-09-09 10:20:51,137 - Model - INFO - Eval mean loss: 0.191097
+2024-09-09 10:20:51,137 - Model - INFO - Eval accuracy: 0.930053
+2024-09-09 10:20:51,137 - Model - INFO - Save model...
+2024-09-09 10:20:51,137 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/best_model.pth
+2024-09-09 10:20:51,267 - Model - INFO - Saving model....
+2024-09-09 10:20:51,268 - Model - INFO - Best mIoU: 0.840269
+2024-09-09 10:20:51,268 - Model - INFO - **** Epoch 5 (5/20) ****
+2024-09-09 10:20:51,268 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:22:56,587 - Model - INFO - Training mean loss: 0.244736
+2024-09-09 10:22:56,588 - Model - INFO - Training accuracy: 0.922077
+2024-09-09 10:22:56,599 - Model - INFO - ---- EPOCH 005 EVALUATION ----
+2024-09-09 10:23:26,476 - Model - INFO - eval mean loss: 0.647614
+2024-09-09 10:23:26,477 - Model - INFO - eval point avg class IoU: 0.477742
+2024-09-09 10:23:26,477 - Model - INFO - eval point accuracy: 0.691848
+2024-09-09 10:23:26,477 - Model - INFO - eval point avg class acc: 0.614410
+2024-09-09 10:23:26,477 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.352 
+class wall           weight: 0.315, IoU: 0.620 
+class others         weight: 0.481, IoU: 0.462 
+
+2024-09-09 10:23:26,478 - Model - INFO - Eval mean loss: 0.647614
+2024-09-09 10:23:26,478 - Model - INFO - Eval accuracy: 0.691848
+2024-09-09 10:23:26,478 - Model - INFO - Best mIoU: 0.840269
+2024-09-09 10:23:26,478 - Model - INFO - **** Epoch 6 (6/20) ****
+2024-09-09 10:23:26,479 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:25:31,615 - Model - INFO - Training mean loss: 0.226418
+2024-09-09 10:25:31,615 - Model - INFO - Training accuracy: 0.927484
+2024-09-09 10:25:31,616 - Model - INFO - Save model...
+2024-09-09 10:25:31,616 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/model.pth
+2024-09-09 10:25:31,748 - Model - INFO - Saving model....
+2024-09-09 10:25:31,756 - Model - INFO - ---- EPOCH 006 EVALUATION ----
+2024-09-09 10:26:02,308 - Model - INFO - eval mean loss: 0.217427
+2024-09-09 10:26:02,308 - Model - INFO - eval point avg class IoU: 0.816685
+2024-09-09 10:26:02,309 - Model - INFO - eval point accuracy: 0.916696
+2024-09-09 10:26:02,309 - Model - INFO - eval point avg class acc: 0.900687
+2024-09-09 10:26:02,309 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.781 
+class wall           weight: 0.315, IoU: 0.967 
+class others         weight: 0.481, IoU: 0.701 
+
+2024-09-09 10:26:02,310 - Model - INFO - Eval mean loss: 0.217427
+2024-09-09 10:26:02,310 - Model - INFO - Eval accuracy: 0.916696
+2024-09-09 10:26:02,310 - Model - INFO - Best mIoU: 0.840269
+2024-09-09 10:26:02,310 - Model - INFO - **** Epoch 7 (7/20) ****
+2024-09-09 10:26:02,310 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:28:07,341 - Model - INFO - Training mean loss: 0.211473
+2024-09-09 10:28:07,342 - Model - INFO - Training accuracy: 0.933544
+2024-09-09 10:28:07,353 - Model - INFO - ---- EPOCH 007 EVALUATION ----
+2024-09-09 10:28:37,583 - Model - INFO - eval mean loss: 0.218434
+2024-09-09 10:28:37,583 - Model - INFO - eval point avg class IoU: 0.810001
+2024-09-09 10:28:37,583 - Model - INFO - eval point accuracy: 0.917026
+2024-09-09 10:28:37,584 - Model - INFO - eval point avg class acc: 0.885420
+2024-09-09 10:28:37,584 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.793 
+class wall           weight: 0.315, IoU: 0.975 
+class others         weight: 0.481, IoU: 0.662 
+
+2024-09-09 10:28:37,584 - Model - INFO - Eval mean loss: 0.218434
+2024-09-09 10:28:37,584 - Model - INFO - Eval accuracy: 0.917026
+2024-09-09 10:28:37,585 - Model - INFO - Best mIoU: 0.840269
+2024-09-09 10:28:37,585 - Model - INFO - **** Epoch 8 (8/20) ****
+2024-09-09 10:28:37,585 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:30:44,127 - Model - INFO - Training mean loss: 0.189851
+2024-09-09 10:30:44,128 - Model - INFO - Training accuracy: 0.942574
+2024-09-09 10:30:44,139 - Model - INFO - ---- EPOCH 008 EVALUATION ----
+2024-09-09 10:31:14,126 - Model - INFO - eval mean loss: 0.253289
+2024-09-09 10:31:14,126 - Model - INFO - eval point avg class IoU: 0.783198
+2024-09-09 10:31:14,126 - Model - INFO - eval point accuracy: 0.901892
+2024-09-09 10:31:14,127 - Model - INFO - eval point avg class acc: 0.865612
+2024-09-09 10:31:14,127 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.752 
+class wall           weight: 0.315, IoU: 0.955 
+class others         weight: 0.481, IoU: 0.642 
+
+2024-09-09 10:31:14,127 - Model - INFO - Eval mean loss: 0.253289
+2024-09-09 10:31:14,127 - Model - INFO - Eval accuracy: 0.901892
+2024-09-09 10:31:14,128 - Model - INFO - Best mIoU: 0.840269
+2024-09-09 10:31:14,128 - Model - INFO - **** Epoch 9 (9/20) ****
+2024-09-09 10:31:14,128 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:33:18,945 - Model - INFO - Training mean loss: 0.215119
+2024-09-09 10:33:18,946 - Model - INFO - Training accuracy: 0.933530
+2024-09-09 10:33:18,957 - Model - INFO - ---- EPOCH 009 EVALUATION ----
+2024-09-09 10:33:49,112 - Model - INFO - eval mean loss: 0.160944
+2024-09-09 10:33:49,113 - Model - INFO - eval point avg class IoU: 0.855071
+2024-09-09 10:33:49,113 - Model - INFO - eval point accuracy: 0.937949
+2024-09-09 10:33:49,113 - Model - INFO - eval point avg class acc: 0.921883
+2024-09-09 10:33:49,113 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.824 
+class wall           weight: 0.315, IoU: 0.990 
+class others         weight: 0.481, IoU: 0.751 
+
+2024-09-09 10:33:49,114 - Model - INFO - Eval mean loss: 0.160944
+2024-09-09 10:33:49,114 - Model - INFO - Eval accuracy: 0.937949
+2024-09-09 10:33:49,114 - Model - INFO - Save model...
+2024-09-09 10:33:49,114 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/best_model.pth
+2024-09-09 10:33:49,252 - Model - INFO - Saving model....
+2024-09-09 10:33:49,252 - Model - INFO - Best mIoU: 0.855071
+2024-09-09 10:33:49,252 - Model - INFO - **** Epoch 10 (10/20) ****
+2024-09-09 10:33:49,252 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:35:56,317 - Model - INFO - Training mean loss: 0.190310
+2024-09-09 10:35:56,318 - Model - INFO - Training accuracy: 0.940597
+2024-09-09 10:35:56,330 - Model - INFO - ---- EPOCH 010 EVALUATION ----
+2024-09-09 10:36:26,531 - Model - INFO - eval mean loss: 0.172806
+2024-09-09 10:36:26,531 - Model - INFO - eval point avg class IoU: 0.857839
+2024-09-09 10:36:26,532 - Model - INFO - eval point accuracy: 0.938723
+2024-09-09 10:36:26,532 - Model - INFO - eval point avg class acc: 0.923547
+2024-09-09 10:36:26,532 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.832 
+class wall           weight: 0.315, IoU: 0.983 
+class others         weight: 0.481, IoU: 0.758 
+
+2024-09-09 10:36:26,533 - Model - INFO - Eval mean loss: 0.172806
+2024-09-09 10:36:26,533 - Model - INFO - Eval accuracy: 0.938723
+2024-09-09 10:36:26,533 - Model - INFO - Save model...
+2024-09-09 10:36:26,533 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/best_model.pth
+2024-09-09 10:36:26,665 - Model - INFO - Saving model....
+2024-09-09 10:36:26,666 - Model - INFO - Best mIoU: 0.857839
+2024-09-09 10:36:26,666 - Model - INFO - **** Epoch 11 (11/20) ****
+2024-09-09 10:36:26,666 - Model - INFO - Learning rate:0.001000
+2024-09-09 10:38:37,414 - Model - INFO - Training mean loss: 0.186655
+2024-09-09 10:38:37,415 - Model - INFO - Training accuracy: 0.939634
+2024-09-09 10:38:37,415 - Model - INFO - Save model...
+2024-09-09 10:38:37,415 - Model - INFO - Saving at log/sem_seg/warm_start_sem_seg2/checkpoints/model.pth
+2024-09-09 10:38:37,528 - Model - INFO - Saving model....
+2024-09-09 10:38:37,539 - Model - INFO - ---- EPOCH 011 EVALUATION ----
+2024-09-09 10:39:18,371 - Model - INFO - eval mean loss: 0.159668
+2024-09-09 10:39:18,371 - Model - INFO - eval point avg class IoU: 0.846322
+2024-09-09 10:39:18,371 - Model - INFO - eval point accuracy: 0.935706
+2024-09-09 10:39:18,372 - Model - INFO - eval point avg class acc: 0.906534
+2024-09-09 10:39:18,372 - Model - INFO - ------- IoU --------
+class windows + doors weight: 0.204, IoU: 0.833 
+class wall           weight: 0.315, IoU: 0.985 
+class others         weight: 0.481, IoU: 0.721 
+
+2024-09-09 10:39:18,372 - Model - INFO - Eval mean loss: 0.159668
+2024-09-09 10:39:18,373 - Model - INFO - Eval accuracy: 0.935706
+2024-09-09 10:39:18,373 - Model - INFO - Best mIoU: 0.857839
+2024-09-09 10:39:18,373 - Model - INFO - **** Epoch 12 (12/20) ****
+2024-09-09 10:39:18,373 - Model - INFO - Learning rate:0.001000

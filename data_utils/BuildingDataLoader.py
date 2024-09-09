@@ -4,7 +4,7 @@ import h5py
 import torch,time,random
 from torch.utils.data import Dataset
 from tqdm import tqdm
-import pandas as pd
+# import pandas as pd
 
 class BuildingDataset(Dataset):
     def __init__(self, split='train', data_root='trainval_fullarea', num_point=4096, block_size=1.0, sample_rate=1.0, transform=None):

@@ -317,8 +317,8 @@ def main_worker(args):
                 state = {
                     'epoch': epoch,
                     'class_avg_iou': mIoU,
-                    'model_state_dict': classifier.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(),
+                    'model_state_dict': classifier.module.state_dict(),
+                    'optimizer_state_dict': optimizer.module.state_dict(),
                 }
                 torch.save(state, savepath)
                 log_string('Saving model....')

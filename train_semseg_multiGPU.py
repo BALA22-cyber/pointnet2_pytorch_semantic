@@ -144,12 +144,13 @@ def main_worker(args):
     '''MODEL LOADING'''
     MODEL = importlib.import_module(args.model)
     print('MODEL', MODEL)
-    MODEL = DDP(MODEL, device_ids=[rank])
-    print('after DDP MODEL', MODEL)
     shutil.copy('models/%s.py' % args.model, str(experiment_dir))
     shutil.copy('models/pointnet2_utils.py', str(experiment_dir))
 
     classifier = MODEL.get_model(NUM_CLASSES).cuda()
+    print('classifier', classifier)
+    classifier = DDP(classifier, device_ids=[rank])
+    print('after DDP classifier', classifier)
     criterion = MODEL.get_loss().cuda()
     classifier.apply(inplace_relu)
 

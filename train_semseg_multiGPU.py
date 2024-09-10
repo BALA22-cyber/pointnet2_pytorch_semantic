@@ -148,6 +148,7 @@ def main_worker(args):
     shutil.copy('models/pointnet2_utils.py', str(experiment_dir))
 
     classifier = MODEL.get_model(NUM_CLASSES).cuda()
+    classifier = classifier.to(rank)
     print('classifier', classifier)
     classifier = DDP(classifier, device_ids=[rank])
     print('after DDP classifier', classifier)

@@ -111,11 +111,14 @@ Processed data will save in `data/stanford_indoor3d/`.
 ## e.g., pointnet2_ssg
 python train_semseg_build.py --model pointnet2_sem_seg --log_dir building_aligned_sem_seg
 python train_semseg_build.py --model pointnet2_sem_seg --log_dir warm_start_sem_seg
+python train_semseg_build.py --model pointnet2_sem_seg --log_dir two_labels_simplified
 python train_semantic3d.py --model pointnet2_sem_seg --log_dir semantic3d_sem_seg
 python train_semseg.py --model pointnet2_sem_seg --test_area 5 --log_dir pointnet3_sem_seg
 python train_semseg.py --model pointnet2_sem_seg --test_area 5 --log_dir pointnet2_sem_seg
 python test_semseg.py --log_dir pointnet2_sem_seg --test_area 5 --visual
+python test_semseg.py --log_dir pointnet2_sem_seg --test_area 5 --visual
 python test_semseg_build.py --log_dir pointnet2_sem_seg  --batch_size 32 --gpu 0 --num_votes 5 --visual
+python test_semseg_build.py --log_dir warm_start_sem_seg2  --batch_size 32 --gpu 0 --num_votes 5 --visual
 python test_semseg_build.py --log_dir building_aligned_sem_seg  --batch_size 32 --gpu 0 --num_votes 5 --visual
 
 log/sem_seg/building_vent_removed2

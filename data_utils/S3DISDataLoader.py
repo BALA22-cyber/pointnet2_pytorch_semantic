@@ -66,6 +66,7 @@ class S3DISDataset(Dataset):
         # normalize
         selected_points = points[selected_point_idxs, :]  # num_point * 6
         current_points = np.zeros((self.num_point, 9))  # num_point * 9
+
         current_points[:, 6] = selected_points[:, 0] / self.room_coord_max[room_idx][0]
         current_points[:, 7] = selected_points[:, 1] / self.room_coord_max[room_idx][1]
         current_points[:, 8] = selected_points[:, 2] / self.room_coord_max[room_idx][2]
@@ -76,6 +77,7 @@ class S3DISDataset(Dataset):
         current_labels = labels[selected_point_idxs]
         if self.transform is not None:
             current_points, current_labels = self.transform(current_points, current_labels)
+        # print("provider_function")
         return current_points, current_labels
 
     def __len__(self):
@@ -185,6 +187,7 @@ if __name__ == '__main__':
     torch.cuda.manual_seed_all(manual_seed)
     def worker_init_fn(worker_id):
         random.seed(manual_seed + worker_id)
+    print("before loading")
     train_loader = torch.utils.data.DataLoader(point_data, batch_size=32, shuffle=True, num_workers=32, pin_memory=True, worker_init_fn=worker_init_fn)
     for idx in range(4):
         end = time.time()

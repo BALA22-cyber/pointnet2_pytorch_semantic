@@ -13,7 +13,8 @@ def load_and_modify_labels(h5_file_path, output_file_path=None):
         
         # Modify the labels
         labels[labels == 2] = 0  # Rewrite label 2 as label 0
-        labels[labels == 3] = 2  # Rewrite label 3 as label 2
+        # labels[labels ==3] = 0
+        # labels[labels == 4] = 2  # Rewrite label 3 as label 2
         
         # Update the labels back in the pointcloud_data
         pointcloud_data[:, -1] = labels
@@ -52,6 +53,6 @@ def process_all_h5_files(input_folder, output_folder=None):
         load_and_modify_labels(input_file_path, output_file_path)
 
 # Usage
-input_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_downsamp_0.2'  # Replace with the path to the folder containing .h5 files
-output_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_3label_downsamp_0.2'  # Replace with the path to the output folder, or None to skip saving
+input_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_3_labels_downsamp_0.2'  
+output_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_2_labels_downsamp_0.2'  
 process_all_h5_files(input_folder, output_folder)

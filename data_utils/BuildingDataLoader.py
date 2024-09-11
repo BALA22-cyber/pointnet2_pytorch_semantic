@@ -61,7 +61,7 @@ class BuildingDataset(Dataset):
     
     def calculate_labelweights(self):
         # There are 5 classes: window (0), wall (1), door (2), others (3). vent has been removed and doors are added with windows.
-        num_classes = 3
+        num_classes = 2
         label_histogram = np.zeros(num_classes)
 
         # Count the number of occurrences of each class in the training set
@@ -118,6 +118,8 @@ class BuildingDataset(Dataset):
         # Sample a block of points
         start_idx = idx * self.num_point
         end_idx = (idx + 1) * self.num_point
+        # print("start",start_idx)
+        # print("end",end_idx)
 
         points = self.data[start_idx:end_idx]  # Extract a block of points (num_point points)
         labels = self.labels[start_idx:end_idx]
@@ -129,6 +131,7 @@ class BuildingDataset(Dataset):
         if points.shape[0] < self.num_point:
             # If there are fewer than num_point points, oversample to make up the required number
             selected_point_idxs = np.random.choice(points.shape[0], self.num_point, replace=True)
+            print("oversampling as there's less than 4096 points in this block")
             points = points[selected_point_idxs]
             labels = labels[selected_point_idxs]
 
@@ -242,22 +245,22 @@ class BuildingDatasetWholeScene(Dataset):
 
 if __name__ == '__main__':
 
-    data_root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_h5_4_labels'  
+    data_root = '/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_3labels_downsamp_0.2'
     num_point,block_size,sample_rate = 4096, 1.0, 0.01
 
-    # Initialize the dataset for training
+    # # Initialize the dataset for training
     train_data = BuildingDataset(split='train', data_root=data_root, num_point=num_point, block_size=block_size, sample_rate=sample_rate, transform=None)
     
     print('Training data size:', len(train_data))
     print('Training point data 0 shape:', train_data.__getitem__(0)[0].shape)
     print('Training point label 0 shape:', train_data.__getitem__(0)[1].shape)
 
-    # Initialize the dataset for testing
+    # # Initialize the dataset for testing
     test_data = BuildingDataset(split='test', data_root=data_root, num_point=num_point, block_size=block_size, sample_rate=sample_rate, transform=None)
     
-    print('Testing data size:', len(test_data))
-    print('Testing point data 0 shape:', test_data.__getitem__(0)[0].shape)
-    print('Testing point label 0 shape:', test_data.__getitem__(0)[1].shape)
+    # print('Testing data size:', len(test_data))
+    # print('Testing point data 0 shape:', test_data.__getitem__(0)[0].shape)
+    # print('Testing point label 0 shape:', test_data.__getitem__(0)[1].shape)
 
         # Set random seeds for reproducibility
     manual_seed = 123

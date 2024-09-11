@@ -61,6 +61,7 @@ def convert_label_4_to_3(folder_path, key='pointcloud'):
 
 # Folder containing the .h5 files
 folder_path = 'data/s3dis/buildings_h5_4_labels/'
+E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_labels
 
 # Call the function to convert label 4 to label 3
 convert_label_4_to_3(folder_path)

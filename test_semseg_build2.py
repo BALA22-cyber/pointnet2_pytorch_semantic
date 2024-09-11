@@ -10,12 +10,10 @@ import importlib
 from torch.utils.data import DataLoader
 from data_utils.BuildingDataLoader import BuildingDatasetWholeScene  # Import your dataset class
 
-# Define color mapping for visualization (window, wall, door, others)
 colors = {
-    0: (255, 0, 0),    # window: red
+    0: (255, 0, 0),    # windows + doors: red
     1: (0, 255, 0),    # wall: green
-    2: (0, 0, 255),    # door: blue
-    3: (255, 255, 0)   # others: yellow
+    2: (0, 0, 255),    # others: blue
 }
 
 def parse_args():
@@ -102,13 +100,6 @@ def add_vote(vote_label_pool, point_idx, pred_label, weight):
                 vote_label_pool[b, n, int(pred_label[b, n])] += 1  # Correcting the indexing here
     return vote_label_pool
 
-def load_model_from_file(model_filepath):
-    """ Dynamically load the model from a Python file """
-    spec = importlib.util.spec_from_file_location("pointnet2_sem_seg", model_filepath)
-    model_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(model_module)
-    return model_module
-
 def main(args):
     os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
     experiment_dir = 'log/sem_seg/' + args.log_dir
@@ -123,15 +114,6 @@ def main(args):
         print(msg)
     
     log_string('---- EVALUATION START ----')
-
-    # # Load the model dynamically based on the logs
-    # # model_name = os.listdir(os.path.join(experiment_dir, 'logs'))[0].split('.')[0]
-    # model_name = os.listdir(experiment_dir + '/logs')[0].split('.')[0]
-    # MODEL = importlib.import_module(model_name)
-
-    # classifier = MODEL.get_model(4)  # 4 classes (window, wall, door, others)
-    # classifier.cuda()
-
 
     # Add the models directory to the Python path
     model_dir = '/mnt/e/pointnet2_pytorch_semantic/models'  # Path to the models folder
@@ -149,30 +131,30 @@ def main(args):
         logger.error(f"Module {model_name} not found in {model_dir}")
         raise e
 
-    # classifier = MODEL.get_model(4)  # 4 classes (windows, wall, door, others)
-    classifier = MODEL.get_model(3)  # 3 classes (windows + doors, wall, others)
+    NUM_CLASSES = 3
+    classifier = MODEL.get_model(NUM_CLASSES)  # 4 classes (window, wall, door, others)
     classifier.cuda()
 
     # Load the model weights
-    # checkpoint = torch.load(os.path.join(experiment_dir, 'checkpoints', 'best_model.pth'))
     checkpoint = torch.load(str(experiment_dir) + '/checkpoints/best_model.pth')
     classifier.load_state_dict(checkpoint['model_state_dict'])
 
     classifier.eval()
 
     # Load the test dataset
-    dataset = BuildingDatasetWholeScene(root='/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_3labels_downsamp_0.2', split='test', block_points=args.num_point)
+    dataset = BuildingDatasetWholeScene(root='/mnt/e/pointnet2_pytorch_semantic/data/s3dis/buildings_aligned', split='test', block_points=args.num_point)
     log_string(f"Number of test data points: {len(dataset)}")
     # DataLoader for testing
     test_loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=16, pin_memory=True)
 
-    # total_seen_class = [0 for _ in range(4)]  # 4 classes
-    # total_correct_class = [0 for _ in range(4)]
-    # total_iou_deno_class = [0 for _ in range(4)]
+    total_seen_class = [0 for _ in range(NUM_CLASSES)]  # 4 classes
+    total_correct_class = [0 for _ in range(NUM_CLASSES)]
+    total_iou_deno_class = [0 for _ in range(NUM_CLASSES)]
 
-    total_seen_class = [0 for _ in range(3)]  # 4 classes
-    total_correct_class = [0 for _ in range(3)]
-    total_iou_deno_class = [0 for _ in range(3)]
+    # Dictionary to accumulate points, predictions, and ground truths for each file
+    all_points = {}
+    all_pred_labels = {}
+    all_gt_labels = {}
 
     # Directory to save .obj files
     pred_save_dir = os.path.join(experiment_dir, 'predictions')
@@ -187,8 +169,7 @@ def main(args):
         gt_labels = gt_labels.long().cuda()
 
         # Voting mechanism for aggregation
-        # vote_label_pool = np.zeros((points.shape[0], args.num_point, 4))
-        vote_label_pool = np.zeros((points.shape[0], args.num_point, 3))
+        vote_label_pool = np.zeros((points.shape[0], args.num_point, NUM_CLASSES))
 
         for vote_idx in range(args.num_votes):
             with torch.no_grad():
@@ -205,24 +186,35 @@ def main(args):
 
         # Save predictions and ground truth as .obj files for visualization (if visual flag is set)
         if args.visual:
+            # Accumulate all points and labels for the entire file instead of block-wise
             for b in range(points.shape[0]):
-                # Save predictions
-                output_filename_pred = os.path.join(pred_save_dir, f"batch_{batch_idx}_sample_{b}_pred.obj")
-                save_predictions_to_obj(points[b], final_pred_labels[b], output_filename_pred, colors)
+                file_name = f"file_{batch_idx}"  # Replace with your logic to identify the correct file
+                if file_name not in all_points:
+                    all_points[file_name] = []
+                    all_pred_labels[file_name] = []
+                    all_gt_labels[file_name] = []
 
-                # Save ground truth
-                output_filename_gt = os.path.join(gt_save_dir, f"batch_{batch_idx}_sample_{b}_gt.obj")
-                save_groundtruth_to_obj(points[b], gt_labels[b], output_filename_gt, colors)
+                all_points[file_name].append(points[b])
+                all_pred_labels[file_name].append(final_pred_labels[b])
+                all_gt_labels[file_name].append(gt_labels[b])
 
-        # Compute accuracy and IoU metrics
-        for l in range(3):
-            total_seen_class[l] += np.sum((gt_labels == l))
-            total_correct_class[l] += np.sum((final_pred_labels == l) & (gt_labels == l))
-            total_iou_deno_class[l] += np.sum(((final_pred_labels == l) | (gt_labels == l)))
+    # Save .obj files for each original file
+    for file_name in all_points:
+        points = np.vstack(all_points[file_name])
+        pred_labels = np.hstack(all_pred_labels[file_name])
+        gt_labels = np.hstack(all_gt_labels[file_name])
 
-    # Calculate IoU and accuracy
+        if args.visual:
+            output_filename_pred = os.path.join(pred_save_dir, f"{file_name}_pred.obj")
+            save_predictions_to_obj(points, pred_labels, output_filename_pred, colors)
+
+            output_filename_gt = os.path.join(gt_save_dir, f"{file_name}_gt.obj")
+            save_groundtruth_to_obj(points, gt_labels, output_filename_gt, colors)
+
+        log_string(f"Saved .obj files for {file_name}")
+
     IoU = np.array(total_correct_class) / (np.array(total_iou_deno_class, dtype=np.float64) + 1e-6)
-    for l in range(3):
+    for l in range(NUM_CLASSES):
         logger.info(f'Class {l} IoU: {IoU[l]:.4f}')
     logger.info(f'Overall IoU: {np.mean(IoU):.4f}')
     logger.info(f'Overall accuracy: {np.sum(total_correct_class) / np.sum(total_seen_class):.4f}')

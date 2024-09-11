@@ -100,16 +100,9 @@ def process_h5_files(input_folder, output_folder, target_label, downsample_ratio
 
 
 if __name__ == "__main__":
-    input_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_4_labels'
-    output_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_downsamp_0.2'
-    downsample_ratio = 0.2  # Downsample class 1 (walls) to 50% of its original size
+    input_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_3_labels_original'
+    output_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_3_labels_downsamp_0.2'
+    downsample_ratio = 0.2  # Downsample class 1 (walls) to 20% of its original size
     target_label = 1  # Class label for walls
     process_h5_files(input_folder, output_folder, target_label, downsample_ratio)
 
-
-# if __name__ == "__main__":
-#     input_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_4_labels'
-#     output_folder = r'E:\pointnet2_pytorch_semantic\data\s3dis\buildings_h5_wall_downsampled'
-    
-#     downsample_ratio = 0.5  # Reduce the "walls" category by 50%
-#     process_and_downsample_h5_files(input_folder, output_folder, downsample_ratio=downsample_ratio, target_label=1)
